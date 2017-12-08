@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.com.ericksprengel.android.movies.MovieListActivity">
+    tools:context="br.com.ericksprengel.android.movies.MovieDetailsActivity">
 
     <include layout="@layout/layout_error"
         android:visibility="gone" />
@@ -11,7 +11,7 @@
     <include layout="@layout/layout_loading"
         android:visibility="gone" />
 
-    <include layout="@layout/activity_movie_list_content"
+    <include layout="@layout/activity_movie_details_content"
         android:visibility="visible" />
 
 </FrameLayout>

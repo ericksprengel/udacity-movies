@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Movies</string>
+
+    <string name="empty_text">"--//--"</string>
+
+    <!-- MovieListActivity -->
+    <string name="movie_list_ac_poster_cdesc">Movie poster</string>
 </resources>
