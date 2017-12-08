@@ -189,10 +189,21 @@ public class Movie {
 			"}";
 		}
 
-    public String getPosterUrl(Resources res) {
-		// Example: http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
+    public String getPosterThumbnailUrl(Resources res) {
+        // Example: http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
         return res.getString(R.string.the_movie_db_api_image_url,
-				res.getString(R.string.the_movie_db_api_image_size),
-				this.getPosterPath());
+                res.getString(R.string.the_movie_db_api_poster_thumbnail_size),
+                this.getPosterPath());
+    }
+
+    public String getPosterUrl(Resources res) {
+        // Example: http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
+        return res.getString(R.string.the_movie_db_api_image_url,
+                res.getString(R.string.the_movie_db_api_poster_size),
+                this.getPosterPath());
+    }
+
+    public String getReleaseYear() {
+        return releaseDate.substring(0, 4);
     }
 }

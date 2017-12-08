@@ -36,8 +36,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         void updateData(Movie movie) {
             mMovie = movie;
             Picasso.with(mPoster.getContext())
-                    .load(mMovie.getPosterUrl(mPoster.getResources()))
-                    .placeholder(R.drawable.movie_placeholder)
+                    .load(mMovie.getPosterThumbnailUrl(mPoster.getResources()))
+                    .placeholder(R.drawable.movie_poster_thumbnail_placeholder)
                     .into(mPoster);
         }
 
