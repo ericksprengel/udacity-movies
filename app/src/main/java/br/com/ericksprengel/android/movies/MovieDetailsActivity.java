@@ -14,9 +14,10 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_list);
+        setContentView(R.layout.activity_movie_details);
         initBaseActivity();
-        findViewById(R.id.movie_list_ac_test_button).setOnClickListener(this);
+        findViewById(R.id.movie_details_ac_poster_imageview);
+        findViewById(R.id.movie_details_ac_title_textview);
         super.setOnErrorClickListener(this);
     }
 
@@ -27,10 +28,6 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
                 Toast.makeText(this, "Error button.", Toast.LENGTH_LONG).show();
                 showContent();
                 break;
-            case R.id.movie_list_ac_test_button:
-                showLoading("carregando");
-                Handler h = new Handler();
-                h.postDelayed((Runnable) () -> showError("Deu ruim."), 3000);
             default:
                 Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
         }

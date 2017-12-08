@@ -27,20 +27,18 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         Movie mMovie;
         ImageView mPoster;
-        TextView mTitle;
 
         ViewHolder(View v) {
             super(v);
             mPoster = v.findViewById(R.id.movie_list_ac_poster_imageview);
-            mTitle = v.findViewById(R.id.movie_list_ac_title_textview);
             v.setOnClickListener(this);
         }
 
         void updateData(Movie movie) {
             mMovie = movie;
             Picasso.with(mPoster.getContext())
-                    .load(mMovie.getPosterUrl(mPoster.getResources()));
-            mTitle.setText(mMovie.getTitle());
+                    .load(mMovie.getPosterUrl(mPoster.getResources()))
+                    .into(mPoster);
         }
 
         @Override

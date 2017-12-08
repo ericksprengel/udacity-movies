@@ -38,16 +38,21 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         setContentView(R.layout.activity_movie_list);
         initBaseActivity();
 
-        RecyclerView mRecyclerView = findViewById(R.id.content_view);
+        RecyclerView mRecyclerView = findViewById(R.id.movie_details_ac_recycleview);
         mRecyclerView.setHasFixedSize(true);
 
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this,2);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this,
+                getResources().getInteger(R.integer.movie_list_ac_grid_spancount));
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new MovieListAdapter(null, this);
         mRecyclerView.setAdapter(mAdapter);
 
         super.setOnErrorClickListener(this);
 
+        loadMovies();
+    }
+
+    private void loadMovies() {
         mMoviewListCall = TheMovieDbServicesBuilder.build(this).getMovieList("popular");
         mMoviewListCall.enqueue(this);
         //TODO stringfy
@@ -67,7 +72,7 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.layout_error_button:
                 //TODO stringfy
-                Toast.makeText(this, "Error button.", Toast.LENGTH_LONG).show();
+                loadMovies();
                 showContent();
                 break;
             default:
