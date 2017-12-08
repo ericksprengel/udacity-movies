@@ -5,53 +5,56 @@ import android.content.res.Resources;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.parceler.Parcel;
+
 import java.util.List;
 
 import br.com.ericksprengel.android.movies.R;
 
+@Parcel
 public class Movie {
 
 	@SerializedName("overview")
-	private String overview;
+	String overview;
 
 	@SerializedName("original_language")
-	private String originalLanguage;
+	String originalLanguage;
 
 	@SerializedName("original_title")
-	private String originalTitle;
+	String originalTitle;
 
 	@SerializedName("video")
-	private boolean video;
+	boolean video;
 
 	@SerializedName("title")
-	private String title;
+	String title;
 
 	@SerializedName("genre_ids")
-	private List<Integer> genreIds;
+	List<Integer> genreIds;
 
 	@SerializedName("poster_path")
-	private String posterPath;
+	String posterPath;
 
 	@SerializedName("backdrop_path")
-	private String backdropPath;
+	String backdropPath;
 
 	@SerializedName("release_date")
-	private String releaseDate;
+	String releaseDate;
 
 	@SerializedName("vote_average")
-	private double voteAverage;
+	double voteAverage;
 
 	@SerializedName("popularity")
-	private double popularity;
+	double popularity;
 
 	@SerializedName("id")
-	private int id;
+	int id;
 
 	@SerializedName("adult")
-	private boolean adult;
+	boolean adult;
 
 	@SerializedName("vote_count")
-	private int voteCount;
+	protected int voteCount;
 
 	public void setOverview(String overview){
 		this.overview = overview;

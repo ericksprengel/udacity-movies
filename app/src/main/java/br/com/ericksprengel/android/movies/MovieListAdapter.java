@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -38,6 +37,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
             mMovie = movie;
             Picasso.with(mPoster.getContext())
                     .load(mMovie.getPosterUrl(mPoster.getResources()))
+                    .placeholder(R.drawable.movie_placeholder)
                     .into(mPoster);
         }
 
@@ -52,7 +52,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.View
         this.mOnClickMovieListener = listener;
     }
 
-    void setmMovies(List<Movie> movies) {
+    void setMovies(List<Movie> movies) {
         this.mMovies = movies;
         notifyDataSetChanged();
     }

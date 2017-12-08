@@ -1,8 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Movies</string>
 
+    <!-- Common strings -->
     <string name="empty_text">"--//--"</string>
+    <string name="connection_error">"Check your connection and try again."</string>
 
     <!-- MovieListActivity -->
+    <string name="movie_list_ac_api_request_error">"Movies couldn't be loaded."</string>
+    <string name="movie_list_ac_loading_videos">"Loading movies…"</string>
     <string name="movie_list_ac_poster_cdesc">Movie poster</string>
+    <string name="retry">Retry</string>
+
+
 </resources>

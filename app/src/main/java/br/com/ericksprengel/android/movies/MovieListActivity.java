@@ -1,35 +1,41 @@
 package br.com.ericksprengel.android.movies;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import org.parceler.Parcels;
+
+import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
+import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_POPULAR;
+import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_TOP_RATED;
 
 public class MovieListActivity extends BaseActivity implements View.OnClickListener, Callback<MovieListResponse>,MovieListAdapter.OnMovieClickListener {
 
     final private static String LOG_TAG = "MovieListActivity";
 
+    final private static String PARAM_MOVIE_LIST_TYPE = "movie_list_type";
+    final private static String PARAM_POPULAR_MOVIES = "popular_movies";
+    final private static String PARAM_TOP_RATED_MOVIES = "top_rated_movies";
+
     private MovieListAdapter mAdapter;
     private Call<MovieListResponse> mMoviewListCall;
+
+    private String mMovieListType = MOVIE_LIST_TYPE_POPULAR;
+    private List<Movie> mPopularMovies;
+    private List<Movie> mTopRatedMovies;
 
 
     @Override
@@ -38,7 +44,9 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         setContentView(R.layout.activity_movie_list);
         initBaseActivity();
 
-        RecyclerView mRecyclerView = findViewById(R.id.movie_details_ac_recycleview);
+        super.setOnErrorClickListener(this);
+
+        RecyclerView mRecyclerView = findViewById(R.id.movie_list_ac_recycleview);
         mRecyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this,
@@ -47,16 +55,40 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         mAdapter = new MovieListAdapter(null, this);
         mRecyclerView.setAdapter(mAdapter);
 
-        super.setOnErrorClickListener(this);
+        FabSpeedDial fab = findViewById(R.id.movie_list_ac_fab);
+        fab.addOnMenuItemClickListener((miniFab, label, itemId) -> {
+            switch (itemId) {
+                case R.id.action_show_popular_movies:
+                    loadMovies(MOVIE_LIST_TYPE_POPULAR);
+                    return;
+                case R.id.action_show_top_rated_movies:
+                    loadMovies(MOVIE_LIST_TYPE_TOP_RATED);
+                    return;
+                default:
+                    Log.wtf(LOG_TAG, "Click event without treatment. (item id: " + itemId + ")");
+            }
+        });
 
-        loadMovies();
+        if(savedInstanceState != null) {
+            if(savedInstanceState.containsKey(PARAM_MOVIE_LIST_TYPE)) {
+                mMovieListType = savedInstanceState.getString(PARAM_MOVIE_LIST_TYPE);
+            }
+            if(savedInstanceState.containsKey(PARAM_POPULAR_MOVIES)) {
+                mPopularMovies= Parcels.unwrap(savedInstanceState.getParcelable(PARAM_POPULAR_MOVIES));
+            }
+            if(savedInstanceState.containsKey(PARAM_TOP_RATED_MOVIES)) {
+                mTopRatedMovies = Parcels.unwrap(savedInstanceState.getParcelable(PARAM_TOP_RATED_MOVIES));
+            }
+        }
+        loadMovies(mMovieListType);
     }
 
-    private void loadMovies() {
-        mMoviewListCall = TheMovieDbServicesBuilder.build(this).getMovieList("popular");
-        mMoviewListCall.enqueue(this);
-        //TODO stringfy
-        showLoading("Carregando vídeos...");
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(PARAM_MOVIE_LIST_TYPE, mMovieListType);
+        outState.putParcelable(PARAM_POPULAR_MOVIES, Parcels.wrap(mPopularMovies));
+        outState.putParcelable(PARAM_TOP_RATED_MOVIES, Parcels.wrap(mTopRatedMovies));
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -67,31 +99,42 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.layout_error_button:
-                //TODO stringfy
-                loadMovies();
-                showContent();
-                break;
-            default:
-                Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
+    private void loadMovies(String listType) {
+        mMovieListType = listType;
+
+        // getting cached movie list
+        if(mMovieListType.equals(MOVIE_LIST_TYPE_POPULAR) && mPopularMovies != null) {
+            mAdapter.setMovies(mPopularMovies);
+        } else if(mMovieListType.equals(MOVIE_LIST_TYPE_TOP_RATED) && mTopRatedMovies != null) {
+            mAdapter.setMovies(mTopRatedMovies);
+        } else {
+            mMoviewListCall = TheMovieDbServicesBuilder.build(this).getMovieList(listType);
+            mMoviewListCall.enqueue(this);
+            showLoading(getString(R.string.movie_list_ac_loading_videos));
         }
     }
-
-
 
     @Override
     public void onResponse(Call<MovieListResponse> call, Response<MovieListResponse> response) {
         mMoviewListCall = null;
         if(response.isSuccessful()) {
-            mAdapter.setmMovies(response.body().getResults());
+            MovieListResponse movieListResponse = response.body();
+            if(movieListResponse == null) {
+                showError(getString(R.string.movie_list_ac_api_request_error));
+            }
+            List<Movie> movies = movieListResponse.getResults();
+
+            // caching the movie list
+            if(mMovieListType.equals(MOVIE_LIST_TYPE_POPULAR)) {
+                mPopularMovies = movies;
+            } else if(mMovieListType.equals(MOVIE_LIST_TYPE_TOP_RATED)) {
+                mTopRatedMovies = movies;
+            }
+            mAdapter.setMovies(movies);
             showContent();
         } else {
             TheMovieDbApiError error = TheMovieDbServicesBuilder.parseError(response, getApplicationContext());
-            //TODO stringfy
-            showError(error.getStatusMessage() != null ? error.getStatusMessage() : "Movies couldn't be loaded.");
+            showError(error.getStatusMessage() != null ? error.getStatusMessage() : getString(R.string.movie_list_ac_api_request_error));
         }
     }
 
@@ -99,14 +142,23 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
     public void onFailure(Call<MovieListResponse> call, Throwable t) {
         mMoviewListCall = null;
         Log.e(LOG_TAG, "Connection error.", t);
-        //TODO stringfy
-        showError("Seu celular está sem conexão de internet.\nTente novamente.");
+        showError(getString(R.string.connection_error));
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.layout_error_button:
+                loadMovies(mMovieListType);
+                break;
+            default:
+                Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
+        }
     }
 
     @Override
     public void onMovieClick(Movie movie) {
-        Intent intent = new Intent(this, MovieDetailsActivity.class);
-        intent.putExtra("movie", movie.getId());
-        startActivity(intent);
+        startActivity(MovieDetailsActivity.getStartIntent(this, movie));
     }
 }

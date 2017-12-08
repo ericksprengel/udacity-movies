@@ -8,20 +8,18 @@
     tools:context="br.com.ericksprengel.android.movies.MovieListActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/movie_details_ac_recycleview"
+        android:id="@+id/movie_list_ac_recycleview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_filter_list_white_24dp"
-        app:elevation="6dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:pressedTranslationZ="12dp" />
+    <io.github.kobakei.materialfabspeeddial.FabSpeedDial
+        android:id="@+id/movie_list_ac_fab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:fab_fabDrawable="@drawable/ic_filter_list_white_24dp"
+        app:fab_fabRotationAngle="90"
+        app:fab_miniFabTextColor="@android:color/white"
+        app:fab_miniFabTextBackground="@color/colorPrimaryDark"
+        app:fab_menu="@menu/movie_list_ac_fab"/>
 </android.support.constraint.ConstraintLayout>

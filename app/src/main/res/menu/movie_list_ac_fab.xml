@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_show_popular_movies"
+        android:title="Popular"
+        android:icon="@drawable/ic_people_white_24dp"
+        android:orderInCategory="1"/>
+    <item
+        android:id="@+id/action_show_top_rated_movies"
+        android:title="Top Rated"
+        android:icon="@drawable/ic_top_rated_white_24dp"
+        android:orderInCategory="2"/>
+</menu>
