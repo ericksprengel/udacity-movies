@@ -13,5 +13,10 @@
     <string name="movie_list_ac_poster_cdesc">Movie poster</string>
     <string name="movie_list_ac_label">Detail</string>
 
+    <!-- MovieListActivity - fab sort -->
+    <string name="action_show_popular_movies">Popular</string>
+    <string name="action_show_top_rated_movies">Top Rated</string>
+    <string name="action_show_favorite_movies">Favorite</string>
+
 
 </resources>
