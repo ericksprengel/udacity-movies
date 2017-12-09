@@ -31,7 +31,7 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
     final private static String PARAM_TOP_RATED_MOVIES = "top_rated_movies";
 
     private MovieListAdapter mAdapter;
-    private Call<MovieListResponse> mMoviewListCall;
+    private Call<MovieListResponse> mMovieListCall;
 
     private String mMovieListType = MOVIE_LIST_TYPE_POPULAR;
     private List<Movie> mPopularMovies;
@@ -94,8 +94,8 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mMoviewListCall != null) {
-            mMoviewListCall.cancel();
+        if(mMovieListCall != null) {
+            mMovieListCall.cancel();
         }
     }
 
@@ -108,15 +108,15 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         } else if(mMovieListType.equals(MOVIE_LIST_TYPE_TOP_RATED) && mTopRatedMovies != null) {
             mAdapter.setMovies(mTopRatedMovies);
         } else {
-            mMoviewListCall = TheMovieDbServicesBuilder.build(this).getMovieList(listType);
-            mMoviewListCall.enqueue(this);
+            mMovieListCall = TheMovieDbServicesBuilder.build(this).getMovieList(listType);
+            mMovieListCall.enqueue(this);
             showLoading(getString(R.string.movie_list_ac_loading_videos));
         }
     }
 
     @Override
     public void onResponse(Call<MovieListResponse> call, Response<MovieListResponse> response) {
-        mMoviewListCall = null;
+        mMovieListCall = null;
         if(response.isSuccessful()) {
             MovieListResponse movieListResponse = response.body();
             if(movieListResponse == null) {
@@ -140,7 +140,7 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onFailure(Call<MovieListResponse> call, Throwable t) {
-        mMoviewListCall = null;
+        mMovieListCall = null;
         Log.e(LOG_TAG, "Connection error.", t);
         showError(getString(R.string.connection_error));
     }

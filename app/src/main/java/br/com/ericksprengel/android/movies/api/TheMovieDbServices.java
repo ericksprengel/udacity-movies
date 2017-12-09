@@ -16,9 +16,9 @@ public interface TheMovieDbServices {
     Call<MovieListResponse> getMovieList(@Path("list_type") String listType);
 
     @GET("movie/{movie_id}/videos")
-    Call<MovieVideoListResponse> getMovieVideoList(@Path("movie_id") String movieId);
+    Call<MovieVideoListResponse> getMovieVideoList(@Path("movie_id") int movieId);
 
     @GET("movie/{movie_id}/reviews")
-    Call<MovieReviewListResponse> getMovieReviewList(@Path("movie_id") String movieId);
+    Call<MovieReviewListResponse> getMovieReviewList(@Path("movie_id") int movieId);
 
 }

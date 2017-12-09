@@ -100,19 +100,46 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         }
     }
 
-    //TODO implement
-    public class MovieVideoViewHolder extends SectionViewHolder {
+    //TODO add more fields
+    public class MovieVideoViewHolder extends MovieDetailsAdapter.ViewHolder implements View.OnClickListener {
+        MovieVideo mMovieVideo;
+
+        private final TextView mName;
 
         MovieVideoViewHolder(View v) {
             super(v);
+            mName = v.findViewById(R.id.movie_details_ac_video_item_name_textview);
+
+            v.setOnClickListener(this);
+        }
+
+        void updateData(MovieVideo video) {
+            mMovieVideo = video;
+
+            mName.setText(mMovieVideo.getName());
+        }
+
+        @Override
+        public void onClick(View view) {
+            MovieDetailsAdapter.this.mOnClickMovieVideoListener.onMovieVideoClick(mMovieVideo);
         }
     }
 
-    //TODO implement
-    public class MovieReviewViewHolder extends SectionViewHolder {
+    //TODO add more fields
+    public class MovieReviewViewHolder extends MovieDetailsAdapter.ViewHolder {
+        MovieReview mMovieReview;
+
+        private final TextView mAuthor;
 
         MovieReviewViewHolder(View v) {
             super(v);
+            mAuthor = v.findViewById(R.id.movie_details_ac_review_item_author_textview);
+        }
+
+        void updateData(MovieReview review) {
+            mMovieReview = review;
+
+            mAuthor.setText(mMovieReview.getAuthor());
         }
     }
 
@@ -186,13 +213,11 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
             case VIEW_TYPE_MOVIE_VIDEO:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.activity_movie_details_movie_video_item, parent, false);
-                return new SectionViewHolder(v);
-                //TODO return new MovieVideoViewHolder(v);
+                return new MovieVideoViewHolder(v);
             case VIEW_TYPE_MOVIE_REVIEW:
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.activity_movie_details_movie_review_item, parent, false);
-                return new SectionViewHolder(v);
-                //TODO return new MovieReviewViewHolder(v);
+                return new MovieReviewViewHolder(v);
 
             default:
                 Log.wtf(LOG_TAG, "Invalid view type (type: " + viewType + ")");
@@ -211,12 +236,12 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
                 ((SectionViewHolder) holder).updateData(getSectionTitle(position));
                 break;
             case VIEW_TYPE_MOVIE_VIDEO:
-                ((SectionViewHolder) holder).updateData(R.string.movie_details_ac_videos_section);
-                //TODO ((MovieVideoViewHolder) holder).updateData(getRelativePosition(position));
+                ((MovieVideoViewHolder) holder).updateData(
+                        mMovieVideos.get(getRelativePosition(position)));
                 break;
             case VIEW_TYPE_MOVIE_REVIEW:
-                ((SectionViewHolder) holder).updateData(R.string.movie_details_ac_videos_section);
-                //TODO ((MovieReviewViewHolder) holder).updateData(getRelativePosition(position));
+                ((MovieReviewViewHolder) holder).updateData(
+                        mMovieReviews.get(getRelativePosition(position)));
                 break;
 
             default:
@@ -257,7 +282,7 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
 
     private int getSectionTitle(int position) {
         if(position == 1) {
-            return R.string.movie_list_ac_label;
+            return R.string.movie_details_ac_videos_section;
         } else {
             return R.string.movie_details_ac_reviews_section;
         }
