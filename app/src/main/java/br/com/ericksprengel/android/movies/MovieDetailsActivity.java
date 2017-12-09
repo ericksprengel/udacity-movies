@@ -3,24 +3,23 @@ package br.com.ericksprengel.android.movies;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
 
 import br.com.ericksprengel.android.movies.models.Movie;
+import br.com.ericksprengel.android.movies.models.MovieVideo;
 
-public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener {
+public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener, MovieDetailsAdapter.OnMovieVideoClickListener {
 
     final private static String LOG_TAG = "MovieListActivity";
 
     final private static String PARAM_MOVIE = "movie";
+    private MovieDetailsAdapter mAdapter;
 
 
     public static Intent getStartIntent(Context context, Movie movie) {
@@ -35,23 +34,19 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
         setContentView(R.layout.activity_movie_details);
         initBaseActivity();
 
-        ImageView poster = findViewById(R.id.movie_details_ac_poster_imageview);
-        TextView title = findViewById(R.id.movie_details_ac_title_textview);
-        TextView releaseDate = findViewById(R.id.movie_details_ac_release_date_textview);
-        TextView overview = findViewById(R.id.movie_details_ac_overview_textview);
-        RatingBar voteAverage = findViewById(R.id.movie_details_ac_vote_average_ratingbar);
+        super.setOnErrorClickListener(this);
 
         Movie movie = Parcels.unwrap(getIntent().getParcelableExtra(PARAM_MOVIE));
-        Picasso.with(this)
-                .load(movie.getPosterThumbnailUrl(getResources()))
-                .placeholder(R.drawable.movie_poster_thumbnail_placeholder)
-                .into(poster);
-        title.setText(movie.getTitle());
-        releaseDate.setText(movie.getReleaseYear());
-        overview.setText(movie.getOverview());
-        voteAverage.setRating((float) movie.getVoteAverage()/2);
 
-        super.setOnErrorClickListener(this);
+        // Recycle view initialization
+        RecyclerView mRecyclerView = findViewById(R.id.content_view);
+        mRecyclerView.setHasFixedSize(false);
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new MovieDetailsAdapter(movie, null,null, this);
+        mRecyclerView.setAdapter(mAdapter);
+
     }
 
     @Override
@@ -63,5 +58,10 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
             default:
                 Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
         }
+    }
+
+    @Override
+    public void onMovieVideoClick(MovieVideo video) {
+
     }
 }
