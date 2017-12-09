@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import br.com.ericksprengel.android.movies.BuildConfig;
 import br.com.ericksprengel.android.movies.R;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -20,6 +21,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TheMovieDbServicesBuilder {
 
+    private static final String API_KEY = BuildConfig.THE_MOVIE_DB_API_KEY;
+
     private static Retrofit mRetrofit;
 
     private static void initRetrofit(Context context) {
@@ -29,7 +32,7 @@ public class TheMovieDbServicesBuilder {
         httpClient.addInterceptor(chain -> {
             Request originalRequest = chain.request();
             HttpUrl url = originalRequest.url().newBuilder()
-                    .addQueryParameter("api_key", context.getString(R.string.the_movie_db_api_key))
+                    .addQueryParameter("api_key", API_KEY)
                     .build();
 
             Request request = originalRequest.newBuilder()
