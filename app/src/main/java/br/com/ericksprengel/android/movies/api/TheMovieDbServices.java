@@ -1,6 +1,7 @@
 package br.com.ericksprengel.android.movies.api;
 
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
+import br.com.ericksprengel.android.movies.models.MovieReviewListResponse;
 import br.com.ericksprengel.android.movies.models.MovieVideoListResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -16,5 +17,8 @@ public interface TheMovieDbServices {
 
     @GET("movie/{movie_id}/videos")
     Call<MovieVideoListResponse> getMovieVideoList(@Path("movie_id") String movieId);
+
+    @GET("movie/{movie_id}/reviews")
+    Call<MovieReviewListResponse> getMovieReviewList(@Path("movie_id") String movieId);
 
 }
