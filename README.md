@@ -3,15 +3,9 @@
 ### API Keys
 ### themoviedb.org API key
 
-The Movie DB API key is stored as an Android string resource.
-To add it just create a string with name _"api_key_the_movie_db"_ 
+The Movie DB API key is stored as a gradle property.
+Just add it to gradle.properties:
 
-* File: app/src/main/res/values/keys.xml
-* Content:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="api_key_the_movie_db">[YOUR_API_KEY]</string>
-</resources>
+```
+THE_MOVIE_DB_API_KEY="58cf977ccc8bb12b6313980ea335fcfe"
 ```
