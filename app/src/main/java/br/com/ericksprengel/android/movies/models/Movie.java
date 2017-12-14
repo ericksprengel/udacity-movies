@@ -7,6 +7,8 @@ import com.google.gson.annotations.SerializedName;
 
 import org.parceler.Parcel;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import br.com.ericksprengel.android.movies.R;
@@ -39,7 +41,7 @@ public class Movie {
 	String backdropPath;
 
 	@SerializedName("release_date")
-	String releaseDate;
+	Date releaseDate; // https://stackoverflow.com/a/13694823/1489446
 
 	@SerializedName("vote_average")
 	double voteAverage;
@@ -120,11 +122,11 @@ public class Movie {
 		return backdropPath;
 	}
 
-	public void setReleaseDate(String releaseDate){
+	public void setReleaseDate(Date releaseDate){
 		this.releaseDate = releaseDate;
 	}
 
-	public String getReleaseDate(){
+	public Date getReleaseDate(){
 		return releaseDate;
 	}
 
@@ -204,6 +206,8 @@ public class Movie {
     }
 
     public String getReleaseYear() {
-        return releaseDate.substring(0, 4);
+        Calendar c = Calendar.getInstance();
+        c.setTime(releaseDate);
+        return String.valueOf(c.get(Calendar.YEAR));
     }
 }
