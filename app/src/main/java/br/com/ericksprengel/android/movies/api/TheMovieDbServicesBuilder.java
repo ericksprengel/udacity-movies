@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.readystatesoftware.chuck.ChuckInterceptor;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -28,6 +29,9 @@ public class TheMovieDbServicesBuilder {
     private static void initRetrofit(Context context) {
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        httpClient.addInterceptor(new ChuckInterceptor(context))
+                .build();
 
         httpClient.addInterceptor(chain -> {
             Request originalRequest = chain.request();
