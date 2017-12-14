@@ -48,7 +48,7 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         }
     }
 
-    public class MovieInfoViewHolder extends MovieDetailsAdapter.ViewHolder implements View.OnClickListener {
+    public class MovieInfoViewHolder extends MovieDetailsAdapter.ViewHolder {
         Movie mMovie;
 
         private final ImageView mPoster;
@@ -64,8 +64,6 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
             mReleaseDate = v.findViewById(R.id.movie_details_ac_release_date_textview);
             mOverview = v.findViewById(R.id.movie_details_ac_overview_textview);
             mVoteAverage = v.findViewById(R.id.movie_details_ac_vote_average_ratingbar);;
-
-            v.setOnClickListener(this);
         }
 
         void updateData(Movie movie) {
@@ -79,11 +77,6 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
             mReleaseDate.setText(mMovie.getReleaseYear());
             mOverview.setText(mMovie.getOverview());
             mVoteAverage.setRating((float) mMovie.getVoteAverage()/2);
-        }
-
-        @Override
-        public void onClick(View view) {
-            MovieDetailsAdapter.this.mOnClickMovieVideoListener.onMovieVideoClick(null);
         }
     }
 
@@ -104,10 +97,12 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
     public class MovieVideoViewHolder extends MovieDetailsAdapter.ViewHolder implements View.OnClickListener {
         MovieVideo mMovieVideo;
 
+        private final ImageView mThumbnail;
         private final TextView mName;
 
         MovieVideoViewHolder(View v) {
             super(v);
+            mThumbnail = v.findViewById(R.id.movie_details_ac_video_item_thumbnail_imageview);
             mName = v.findViewById(R.id.movie_details_ac_video_item_name_textview);
 
             v.setOnClickListener(this);
@@ -115,6 +110,10 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
 
         void updateData(MovieVideo video) {
             mMovieVideo = video;
+            Picasso.with(mThumbnail.getContext())
+                    .load(mMovieVideo.getThumbURL())
+                    .placeholder(R.drawable.movievideo_thumbnail_placeholder)
+                    .into(mThumbnail);
 
             mName.setText(mMovieVideo.getName());
         }

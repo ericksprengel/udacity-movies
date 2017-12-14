@@ -105,5 +105,14 @@ public class MovieVideo {
 			",iso_639_1 = '" + iso6391 + '\'' + 
 			",key = '" + key + '\'' + 
 			"}";
-		}
+	}
+
+    public String getThumbURL() {
+        return "https://img.youtube.com/vi/" + getKey() + "/hqdefault.jpg";
+    }
+
+    public String getVideoURL() {
+        return "https://www.youtube.com/watch?v=" + getKey();
+    }
+
 }

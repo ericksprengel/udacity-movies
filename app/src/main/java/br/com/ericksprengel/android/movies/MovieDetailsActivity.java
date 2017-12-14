@@ -2,6 +2,7 @@ package br.com.ericksprengel.android.movies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -177,6 +178,8 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onMovieVideoClick(MovieVideo video) {
-
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(video.getVideoURL()));
+        startActivity(intent);
     }
 }
