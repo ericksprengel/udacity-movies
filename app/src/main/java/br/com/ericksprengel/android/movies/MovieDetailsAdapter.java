@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -27,6 +28,10 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
     private static final int VIEW_TYPE_MOVIE_VIDEO = 0x03;
     private static final int VIEW_TYPE_MOVIE_REVIEW = 0x04;
 
+    public interface OnMovieFavoriteClickListener {
+        void onMovieFavoriteClick(Movie movie, boolean favorite);
+    }
+
     public interface OnMovieVideoClickListener {
         void onMovieVideoClick(MovieVideo video);
     }
@@ -38,6 +43,7 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
     private Movie mMovie;
     private List<MovieVideo> mMovieVideos;
     private List<MovieReview> mMovieReviews;
+    private OnMovieFavoriteClickListener mOnMovieFavoriteClickListener;
     private OnMovieVideoClickListener mOnClickMovieVideoListener;
 
     // VIEW HOLDERS - START
@@ -48,7 +54,7 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         }
     }
 
-    public class MovieInfoViewHolder extends MovieDetailsAdapter.ViewHolder {
+    public class MovieInfoViewHolder extends MovieDetailsAdapter.ViewHolder implements View.OnClickListener {
         Movie mMovie;
 
         private final ImageView mPoster;
@@ -56,6 +62,7 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         private final TextView mReleaseDate;
         private final TextView mOverview;
         private final RatingBar mVoteAverage;
+        private final ToggleButton mFavorite;
 
         MovieInfoViewHolder(View v) {
             super(v);
@@ -63,7 +70,9 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
             mTitle = v.findViewById(R.id.movie_details_ac_title_textview);
             mReleaseDate = v.findViewById(R.id.movie_details_ac_release_date_textview);
             mOverview = v.findViewById(R.id.movie_details_ac_overview_textview);
-            mVoteAverage = v.findViewById(R.id.movie_details_ac_vote_average_ratingbar);;
+            mVoteAverage = v.findViewById(R.id.movie_details_ac_vote_average_ratingbar);
+            mFavorite = v.findViewById(R.id.movie_details_ac_favorite_togglebutton);
+            mFavorite.setOnClickListener(this);
         }
 
         void updateData(Movie movie) {
@@ -77,6 +86,12 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
             mReleaseDate.setText(mMovie.getReleaseYear());
             mOverview.setText(mMovie.getOverview());
             mVoteAverage.setRating((float) mMovie.getVoteAverage()/2);
+            mFavorite.setChecked(mMovie.isFavorite());
+        }
+
+        @Override
+        public void onClick(View view) {
+            mOnMovieFavoriteClickListener.onMovieFavoriteClick(mMovie, mFavorite.isChecked());
         }
     }
 
@@ -179,11 +194,14 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
 
 
 
-    MovieDetailsAdapter(Movie movie, List<MovieVideo> videos, List<MovieReview> reviews, OnMovieVideoClickListener listener) {
+    MovieDetailsAdapter(Movie movie, List<MovieVideo> videos, List<MovieReview> reviews,
+                        OnMovieFavoriteClickListener favoriteClickListener,
+                        OnMovieVideoClickListener movieVideoClickListener) {
         this.mMovie = movie;
         this.mMovieVideos = videos;
         this.mMovieReviews = reviews;
-        this.mOnClickMovieVideoListener = listener;
+        this.mOnMovieFavoriteClickListener = favoriteClickListener;
+        this.mOnClickMovieVideoListener = movieVideoClickListener;
     }
 
     void setMovieVideos(List<MovieVideo> videos) {

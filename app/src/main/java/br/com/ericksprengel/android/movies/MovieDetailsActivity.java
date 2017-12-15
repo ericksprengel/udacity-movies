@@ -1,5 +1,6 @@
 package br.com.ericksprengel.android.movies;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
+import br.com.ericksprengel.android.movies.db.MovieContract;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
 import br.com.ericksprengel.android.movies.models.MovieReview;
@@ -30,7 +32,7 @@ import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_L
 import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_TOP_RATED;
 
 public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener,
-        MovieDetailsAdapter.OnMovieVideoClickListener {
+        MovieDetailsAdapter.OnMovieVideoClickListener, MovieDetailsAdapter.OnMovieFavoriteClickListener {
 
     final private static String LOG_TAG = "MovieListActivity";
 
@@ -129,7 +131,7 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new MovieDetailsAdapter(mMovie, null,null, this);
+        mAdapter = new MovieDetailsAdapter(mMovie, null,null, this, this);
         mRecyclerView.setAdapter(mAdapter);
 
         if(savedInstanceState != null) {
@@ -181,5 +183,20 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(video.getVideoURL()));
         startActivity(intent);
+    }
+
+    @Override
+    public void onMovieFavoriteClick(Movie movie, boolean favorite) {
+        movie.setFavorite(favorite);
+        if(favorite) {
+            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
+                    MovieContract.MovieEntry.getContentValues(movie));
+        } else {
+            Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon()
+                    .appendPath(String.valueOf(movie.getId()))
+                    .build();
+            getContentResolver().delete(uri,null, null);
+            //TODO getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MainActivity.this);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package br.com.ericksprengel.android.movies;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
+import br.com.ericksprengel.android.movies.db.MovieContract;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
@@ -64,6 +66,12 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
                 case R.id.action_show_top_rated_movies:
                     loadMovies(MOVIE_LIST_TYPE_TOP_RATED);
                     return;
+                case R.id.action_show_favorite_movies:
+                    int id = 4;
+                    String idString = "" + id;
+                    Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+                    uri = uri.buildUpon().appendPath(idString).build();
+                    getContentResolver().delete(uri, null, null);
                 default:
                     Log.wtf(LOG_TAG, "Click event without treatment. (item id: " + itemId + ")");
             }

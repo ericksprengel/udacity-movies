@@ -58,6 +58,8 @@ public class Movie {
 	@SerializedName("vote_count")
 	protected int voteCount;
 
+	private boolean favorite;
+
 	public void setOverview(String overview){
 		this.overview = overview;
 	}
@@ -210,4 +212,12 @@ public class Movie {
         c.setTime(releaseDate);
         return String.valueOf(c.get(Calendar.YEAR));
     }
+
+    public void setFavorite(boolean favorite) {
+ 		this.favorite = favorite;
+	}
+
+	public boolean isFavorite() {
+		return favorite;
+	}
 }
