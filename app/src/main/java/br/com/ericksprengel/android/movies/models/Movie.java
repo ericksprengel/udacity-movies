@@ -41,7 +41,7 @@ public class Movie {
 	String backdropPath;
 
 	@SerializedName("release_date")
-	Date releaseDate; // https://stackoverflow.com/a/13694823/1489446
+	Date releaseDate;
 
 	@SerializedName("vote_average")
 	double voteAverage;
@@ -56,9 +56,10 @@ public class Movie {
 	boolean adult;
 
 	@SerializedName("vote_count")
-	protected int voteCount;
+	int voteCount;
 
-	private boolean favorite;
+    @SerializedName("favorite")
+	boolean favorite;
 
 	public void setOverview(String overview){
 		this.overview = overview;
@@ -188,9 +189,10 @@ public class Movie {
 			",vote_average = '" + voteAverage + '\'' + 
 			",popularity = '" + popularity + '\'' + 
 			",id = '" + id + '\'' + 
-			",adult = '" + adult + '\'' + 
-			",vote_count = '" + voteCount + '\'' + 
-			"}";
+			",adult = '" + adult + '\'' +
+			",vote_count = '" + voteCount + '\'' +
+            ",favorite = '" + favorite + '\'' +
+            "}";
 		}
 
     public String getPosterThumbnailUrl(Resources res) {

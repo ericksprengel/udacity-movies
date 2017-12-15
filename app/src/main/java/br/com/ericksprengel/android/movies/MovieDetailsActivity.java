@@ -18,6 +18,7 @@ import java.util.List;
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
 import br.com.ericksprengel.android.movies.db.MovieContract;
+import br.com.ericksprengel.android.movies.db.MovieDbUtils;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
 import br.com.ericksprengel.android.movies.models.MovieReview;
@@ -125,6 +126,8 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
 
         mMovie = Parcels.unwrap(getIntent().getParcelableExtra(PARAM_MOVIE));
 
+        mMovie.setFavorite(MovieDbUtils.isFavoriteMovie(this, mMovie));
+
         // Recycle view initialization
         RecyclerView mRecyclerView = findViewById(R.id.content_view);
         mRecyclerView.setHasFixedSize(false);
@@ -189,13 +192,9 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
     public void onMovieFavoriteClick(Movie movie, boolean favorite) {
         movie.setFavorite(favorite);
         if(favorite) {
-            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
-                    MovieContract.MovieEntry.getContentValues(movie));
+            MovieDbUtils.save(this, movie);
         } else {
-            Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon()
-                    .appendPath(String.valueOf(movie.getId()))
-                    .build();
-            getContentResolver().delete(uri,null, null);
+            MovieDbUtils.delete(this, movie);
             //TODO getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MainActivity.this);
         }
     }
