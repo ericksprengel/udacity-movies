@@ -11,6 +11,7 @@ public interface TheMovieDbServices {
 
     String MOVIE_LIST_TYPE_POPULAR = "popular";
     String MOVIE_LIST_TYPE_TOP_RATED = "top_rated";
+    String MOVIE_LIST_TYPE_FAVORITE = "favorite";
 
     @GET("movie/{list_type}")
     Call<MovieListResponse> getMovieList(@Path("list_type") String listType);

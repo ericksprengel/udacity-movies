@@ -13,6 +13,7 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
+import br.com.ericksprengel.android.movies.db.MoviesRepository;
 import br.com.ericksprengel.android.movies.db.local.MovieContract;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
@@ -39,12 +40,16 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
     private List<Movie> mPopularMovies;
     private List<Movie> mTopRatedMovies;
 
+    private MoviesRepository mMoviesRepository;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
         initBaseActivity();
+
+        mMoviesRepository = MoviesRepository.getInstance(this.getApplicationContext());
 
         super.setOnErrorClickListener(this);
 
