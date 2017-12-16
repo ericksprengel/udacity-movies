@@ -1,4 +1,4 @@
-package br.com.ericksprengel.android.movies.db;
+package br.com.ericksprengel.android.movies.db.local;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,7 +7,6 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.ericksprengel.android.movies.MovieDetailsActivity;
 import br.com.ericksprengel.android.movies.models.Movie;
 
 /**

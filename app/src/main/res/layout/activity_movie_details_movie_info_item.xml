@@ -86,9 +86,12 @@
 
     <ToggleButton
         android:id="@+id/movie_details_ac_favorite_togglebutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="8dp"
+        android:background="@drawable/btn_star"
+        android:textOff=""
+        android:textOn=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/movie_details_ac_overview_textview" />
 

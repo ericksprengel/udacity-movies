@@ -1,6 +1,5 @@
 package br.com.ericksprengel.android.movies;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,10 +16,8 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
-import br.com.ericksprengel.android.movies.db.MovieContract;
-import br.com.ericksprengel.android.movies.db.MovieDbUtils;
+import br.com.ericksprengel.android.movies.db.local.MovieDbUtils;
 import br.com.ericksprengel.android.movies.models.Movie;
-import br.com.ericksprengel.android.movies.models.MovieListResponse;
 import br.com.ericksprengel.android.movies.models.MovieReview;
 import br.com.ericksprengel.android.movies.models.MovieReviewListResponse;
 import br.com.ericksprengel.android.movies.models.MovieVideo;
@@ -28,9 +25,6 @@ import br.com.ericksprengel.android.movies.models.MovieVideoListResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_POPULAR;
-import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_TOP_RATED;
 
 public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener,
         MovieDetailsAdapter.OnMovieVideoClickListener, MovieDetailsAdapter.OnMovieFavoriteClickListener {

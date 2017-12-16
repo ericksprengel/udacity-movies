@@ -24,7 +24,7 @@
             android:label="@string/movie_list_ac_label" />
 
         <provider
-            android:name=".db.MovieContentProvider"
+            android:name=".db.local.MovieContentProvider"
             android:authorities="br.com.ericksprengel.android.movies"
             android:enabled="true"
             android:exported="false" />

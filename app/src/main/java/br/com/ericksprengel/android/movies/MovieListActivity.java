@@ -13,7 +13,7 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
-import br.com.ericksprengel.android.movies.db.MovieContract;
+import br.com.ericksprengel.android.movies.db.local.MovieContract;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;

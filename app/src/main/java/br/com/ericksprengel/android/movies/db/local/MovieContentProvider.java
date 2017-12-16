@@ -1,4 +1,4 @@
-package br.com.ericksprengel.android.movies.db;
+package br.com.ericksprengel.android.movies.db.local;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import static android.provider.BaseColumns._ID;
-import static br.com.ericksprengel.android.movies.db.MovieContract.MovieEntry.TABLE_NAME;
 
 public class MovieContentProvider extends ContentProvider {
 
@@ -47,7 +46,7 @@ public class MovieContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case MOVIES:
-                long id = db.insert(TABLE_NAME, null, values);
+                long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if(id > 0) {
                     returnUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, id);
                 } else {
@@ -70,11 +69,11 @@ public class MovieContentProvider extends ContentProvider {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
             case MOVIES:
-                cursor = db.query(TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = db.query(MovieContract.MovieEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case MOVIE_WITH_ID:
                 String id = uri.getPathSegments().get(1);
-                cursor = db.query(TABLE_NAME, projection, _ID + "=?", new String[]{id}, null, null, null);
+                cursor = db.query(MovieContract.MovieEntry.TABLE_NAME, projection, _ID + "=?", new String[]{id}, null, null, null);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -98,7 +97,7 @@ public class MovieContentProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case MOVIE_WITH_ID:
                 String id = uri.getPathSegments().get(1);
-                moviesDeleted = db.delete(TABLE_NAME, _ID + "=?", new String[]{id});
+                moviesDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, _ID + "=?", new String[]{id});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

@@ -1,4 +1,4 @@
-package br.com.ericksprengel.android.movies.db;
+package br.com.ericksprengel.android.movies.db.local;
 
 import android.content.ContentValues;
 import android.database.Cursor;
