@@ -14,30 +14,6 @@ import br.com.ericksprengel.android.movies.models.Movie;
  */
 
 public class MovieDbUtils {
-    public static void save(Context context, Movie movie) {
-        context.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
-                MovieContract.MovieEntry.getContentValues(movie));
-    }
-
-
-    public static void delete(Context context, Movie movie) {
-        Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon()
-                .appendPath(String.valueOf(movie.getId()))
-                .build();
-        context.getContentResolver().delete(uri,null, null);
-    }
-
-    public static List<Movie> getFavoriteMovies(Context context) {
-        Cursor cursor = context.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
-                null, MovieContract.MovieEntry.COLUMN_FAVORITE + "=?", new String[]{"1"}, null);
-        List<Movie> movies = new ArrayList<>();
-        cursor.moveToFirst();
-        while(!cursor.isAfterLast()) {
-            movies.add(MovieContract.MovieEntry.getMovie(cursor)); //add the item
-            cursor.moveToNext();
-        }
-        return movies;
-    }
 
     public static boolean isFavoriteMovie(Context context, Movie movie) {
         Cursor cursor = context.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,

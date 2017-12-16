@@ -12,6 +12,10 @@ import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
 import br.com.ericksprengel.android.movies.db.MoviesDataSource;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieListResponse;
+import br.com.ericksprengel.android.movies.models.MovieReview;
+import br.com.ericksprengel.android.movies.models.MovieReviewListResponse;
+import br.com.ericksprengel.android.movies.models.MovieVideo;
+import br.com.ericksprengel.android.movies.models.MovieVideoListResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,7 +50,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
     }
 
     @Override
-    public void getMovies(@NonNull LoadMoviesCallback callback, String listType) {
+    public boolean getMovies(@NonNull LoadMoviesCallback callback, String listType) {
         Call<MovieListResponse> call = mTheMovieDbServices.getMovieList(listType);
         call.enqueue(new Callback<MovieListResponse>() {
 
@@ -74,11 +78,71 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
                         mContext.getResources().getString(R.string.connection_error));
             }
         });
+        return false;
     }
 
     @Override
-    public void getReviews(@NonNull LoadReviewsCallback callback) {
+    public boolean getVideos(@NonNull LoadVideosCallback callback, Movie movie) {
+        Call<MovieVideoListResponse> call = mTheMovieDbServices.getMovieVideoList(movie.getId());
+        call.enqueue(new Callback<MovieVideoListResponse>() {
 
+            @Override
+            public void onResponse(Call<MovieVideoListResponse> call, Response<MovieVideoListResponse> response) {
+                if(response.isSuccessful()) {
+                    MovieVideoListResponse videoListResponse = response.body();
+                    if(videoListResponse == null) {
+                        callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
+                                mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                    }
+                    List<MovieVideo> videos = videoListResponse.getResults();
+                    callback.onVideosLoaded(videos);
+                } else {
+                    TheMovieDbApiError error = TheMovieDbServicesBuilder.parseError(response, mContext);
+                    callback.onDataNotAvailable(error.getStatusCode(), error.getStatusMessage() != null ?
+                            error.getStatusMessage() :
+                            mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieVideoListResponse> call, Throwable t) {
+                callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
+                        mContext.getResources().getString(R.string.connection_error));
+            }
+        });
+        return false;
+    }
+
+    @Override
+    public boolean getReviews(@NonNull LoadReviewsCallback callback, Movie movie) {
+        Call<MovieReviewListResponse> call = mTheMovieDbServices.getMovieReviewList(movie.getId());
+        call.enqueue(new Callback<MovieReviewListResponse>() {
+
+            @Override
+            public void onResponse(Call<MovieReviewListResponse> call, Response<MovieReviewListResponse> response) {
+                if(response.isSuccessful()) {
+                    MovieReviewListResponse reviewListResponse = response.body();
+                    if(reviewListResponse == null) {
+                        callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
+                                mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                    }
+                    List<MovieReview> reviews = reviewListResponse.getResults();
+                    callback.onReviewsLoaded(reviews);
+                } else {
+                    TheMovieDbApiError error = TheMovieDbServicesBuilder.parseError(response, mContext);
+                    callback.onDataNotAvailable(error.getStatusCode(), error.getStatusMessage() != null ?
+                            error.getStatusMessage() :
+                            mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieReviewListResponse> call, Throwable t) {
+                callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
+                        mContext.getResources().getString(R.string.connection_error));
+            }
+        });
+        return false;
     }
 
     @Override
@@ -89,10 +153,5 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
     @Override
     public void unfavoriteMovie(@NonNull Movie movie) {
         // there is no favorite movie remotely
-    }
-
-    @Override
-    public void refreshMovies() {
-
     }
 }

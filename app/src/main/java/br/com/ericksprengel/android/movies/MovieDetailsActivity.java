@@ -16,6 +16,8 @@ import java.util.List;
 
 import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
 import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
+import br.com.ericksprengel.android.movies.db.MoviesDataSource;
+import br.com.ericksprengel.android.movies.db.MoviesRepository;
 import br.com.ericksprengel.android.movies.db.local.MovieDbUtils;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieReview;
@@ -27,81 +29,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener,
-        MovieDetailsAdapter.OnMovieVideoClickListener, MovieDetailsAdapter.OnMovieFavoriteClickListener {
+        MovieDetailsAdapter.OnMovieVideoClickListener, MovieDetailsAdapter.OnMovieFavoriteClickListener, MoviesDataSource.LoadVideosCallback, MoviesDataSource.LoadReviewsCallback {
 
     final private static String LOG_TAG = "MovieListActivity";
 
     final private static String PARAM_MOVIE = "movie";
 
-    final private static String PARAM_MOVIE_VIDEOS = "movie_videos";
-    final private static String PARAM_MOVIE_REVIEWS = "movie_reviews";
+    private MoviesRepository mMoviesRepository;
 
     private MovieDetailsAdapter mAdapter;
-    private Call<MovieVideoListResponse> mMovieVideoListCall;
-    private Call<MovieReviewListResponse> mMovieReviewListCall;
 
     private Movie mMovie;
-    private List<MovieVideo> mMovieVideos;
-    private List<MovieReview> mMovieReviews;
-
-    Callback<MovieVideoListResponse> mMovieVideoListCallback = new Callback<MovieVideoListResponse>() {
-        @Override
-        public void onResponse(Call<MovieVideoListResponse> call, Response<MovieVideoListResponse> response) {
-            mMovieVideoListCall = null;
-            if(response.isSuccessful()) {
-                MovieVideoListResponse movieVideoListResponse = response.body();
-                if(movieVideoListResponse == null) {
-                    showError(getString(R.string.movie_details_ac_api_request_error));
-                }
-                List<MovieVideo> videos = movieVideoListResponse.getResults();
-
-                // caching the movie video list
-                mMovieVideos = videos;
-                mAdapter.setMovieVideos(videos);
-
-                loadMovieReviews();
-            } else {
-                TheMovieDbApiError error = TheMovieDbServicesBuilder.parseError(response, getApplicationContext());
-                showError(error.getStatusMessage() != null ? error.getStatusMessage() : getString(R.string.movie_details_ac_api_request_error));
-            }
-        }
-
-        @Override
-        public void onFailure(Call<MovieVideoListResponse> call, Throwable t) {
-            mMovieVideoListCall = null;
-            Log.e(LOG_TAG, "Connection error.", t);
-            showError(getString(R.string.connection_error));
-        }
-    };
-
-    Callback<MovieReviewListResponse> mMovieReviewListCallback = new Callback<MovieReviewListResponse>() {
-        @Override
-        public void onResponse(Call<MovieReviewListResponse> call, Response<MovieReviewListResponse> response) {
-            mMovieReviewListCall = null;
-            if(response.isSuccessful()) {
-                MovieReviewListResponse movieReviewListResponse = response.body();
-                if(movieReviewListResponse == null) {
-                    showError(getString(R.string.movie_details_ac_api_request_error));
-                }
-                List<MovieReview> reviews = movieReviewListResponse.getResults();
-
-                // caching the movie review list
-                mMovieReviews = reviews;
-                mAdapter.setMovieReviews(reviews);
-                showContent();
-            } else {
-                TheMovieDbApiError error = TheMovieDbServicesBuilder.parseError(response, getApplicationContext());
-                showError(error.getStatusMessage() != null ? error.getStatusMessage() : getString(R.string.movie_details_ac_api_request_error));
-            }
-        }
-
-        @Override
-        public void onFailure(Call<MovieReviewListResponse> call, Throwable t) {
-            mMovieReviewListCall = null;
-            Log.e(LOG_TAG, "Connection error.", t);
-            showError(getString(R.string.connection_error));
-        }
-    };
 
 
     public static Intent getStartIntent(Context context, Movie movie) {
@@ -115,6 +53,8 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
         initBaseActivity();
+
+        mMoviesRepository = MoviesRepository.getInstance(this.getApplicationContext());
 
         super.setOnErrorClickListener(this);
 
@@ -131,49 +71,47 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
         mAdapter = new MovieDetailsAdapter(mMovie, null,null, this, this);
         mRecyclerView.setAdapter(mAdapter);
 
-        if(savedInstanceState != null) {
-            if(savedInstanceState.containsKey(PARAM_MOVIE_VIDEOS)) {
-                mMovieVideos = Parcels.unwrap(savedInstanceState.getParcelable(PARAM_MOVIE_VIDEOS));
-            }
-        }
-
-        loadMovieVideos();
+        loadVideos();
     }
 
-    private void loadMovieVideos() {
-        // getting cached movie video list
-        if(mMovieVideos != null) {
-            mAdapter.setMovieVideos(mMovieVideos);
-            loadMovieReviews();
-        } else {
-            mMovieVideoListCall = TheMovieDbServicesBuilder.build(this).getMovieVideoList(mMovie.getId());
-            mMovieVideoListCall.enqueue(mMovieVideoListCallback);
-            showLoading(getString(R.string.movie_details_ac_loading_movie_content));
+
+    private void loadVideos() {
+        boolean isCached = mMoviesRepository.getVideos(this, mMovie);
+        if(!isCached) {
+            showLoading(getResources().getString(R.string.movie_details_ac_loading_movie_content));
         }
+        mMoviesRepository.getVideos(this, mMovie);
     }
 
-    private void loadMovieReviews() {
-        // getting cached movie review list
-        if(mMovieReviews != null) {
-            mAdapter.setMovieReviews(mMovieReviews);
-            showContent();
-        } else {
-            mMovieReviewListCall = TheMovieDbServicesBuilder.build(this).getMovieReviewList(mMovie.getId());
-            mMovieReviewListCall.enqueue(mMovieReviewListCallback);
-            showLoading(getString(R.string.movie_details_ac_loading_movie_content));
+    private void loadReviews() {
+        boolean isCached = mMoviesRepository.getReviews(this, mMovie);
+        if(!isCached) {
+            showLoading(getResources().getString(R.string.movie_details_ac_loading_movie_content));
         }
+        mMoviesRepository.getReviews(this, mMovie);
     }
 
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.layout_error_button:
-                Toast.makeText(this, "Error button.\nNot implemented.", Toast.LENGTH_LONG).show();
-                break;
-            default:
-                Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
-        }
+    public void onVideosLoaded(List<MovieVideo> videos) {
+        mAdapter.setMovieVideos(videos);
+        loadReviews();
     }
+
+    @Override
+    public void onReviewsLoaded(List<MovieReview> reviews) {
+        mAdapter.setMovieReviews(reviews);
+        showContent();
+    }
+
+    @Override
+    public void onDataNotAvailable(int errorCode, String errorMessage) {
+        Log.w(LOG_TAG, errorMessage + " (" + errorCode + ")");
+        showError(errorMessage);
+    }
+
+
+
+    // click events
 
     @Override
     public void onMovieVideoClick(MovieVideo video) {
@@ -186,10 +124,20 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
     public void onMovieFavoriteClick(Movie movie, boolean favorite) {
         movie.setFavorite(favorite);
         if(favorite) {
-            MovieDbUtils.save(this, movie);
+            mMoviesRepository.favoriteMovie(movie);
         } else {
-            MovieDbUtils.delete(this, movie);
-            //TODO getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MainActivity.this);
+            mMoviesRepository.unfavoriteMovie(movie);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.layout_error_button:
+                Toast.makeText(this, "Error button.\nNot implemented.", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");
         }
     }
 }

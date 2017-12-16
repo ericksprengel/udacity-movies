@@ -60,9 +60,9 @@ public class MoviesLocalDataSource implements MoviesDataSource {
     }
 
     @Override
-    public void getMovies(@NonNull final MoviesDataSource.LoadMoviesCallback callback, String listType) {
-        if(!listType.equals("favorites")) {
-            return;
+    public boolean getMovies(@NonNull final MoviesDataSource.LoadMoviesCallback callback, String listType) {
+        if(!listType.equals(MOVIE_LIST_TYPE_FAVORITE)) {
+            throw new UnsupportedOperationException("Only favorite movies can be fetched from local data source.");
         }
 
         Runnable runnable = (Runnable) () -> {
@@ -77,58 +77,39 @@ public class MoviesLocalDataSource implements MoviesDataSource {
             }
 
             mAppExecutors.mainThread().execute(() -> {
-                 callback.onMoviesLoaded(movies, MOVIE_LIST_TYPE_FAVORITE);
+                 callback.onMoviesLoaded(movies, listType);
             });
         };
 
         mAppExecutors.diskIO().execute(runnable);
+        return false;
     }
 
     @Override
-    public void getReviews(@NonNull LoadReviewsCallback callback) {
+    public boolean getVideos(@NonNull LoadVideosCallback callback, Movie movie) {
+        throw new UnsupportedOperationException("there is no videos saved locally");
+    }
 
+    @Override
+    public boolean getReviews(@NonNull LoadReviewsCallback callback, Movie movie) {
+        throw new UnsupportedOperationException("there is no reviews saved locally");
     }
 
     @Override
     public void favoriteMovie(@NonNull Movie movie) {
-
+        mAppExecutors.diskIO().execute(() -> {
+            mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
+                    MovieContract.MovieEntry.getContentValues(movie));
+        });
     }
 
     @Override
     public void unfavoriteMovie(@NonNull Movie movie) {
-
-    }
-
-    @Override
-    public void refreshMovies() {
-
-    }
-
-
-    // TO CONVERT!!!
-
-
-    public static void save(Context context, Movie movie) {
-        context.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
-                MovieContract.MovieEntry.getContentValues(movie));
-    }
-
-
-    public static void delete(Context context, Movie movie) {
-        Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon()
-                .appendPath(String.valueOf(movie.getId()))
-                .build();
-        context.getContentResolver().delete(uri,null, null);
-    }
-
-    public static boolean isFavoriteMovie(Context context, Movie movie) {
-        Cursor cursor = context.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
-                new String[] {"count(*) AS count"},
-                MovieContract.MovieEntry._ID + "=?",
-                new String[]{String.valueOf(movie.getId())},
-                null);
-
-        cursor.moveToFirst();
-        return cursor.getInt(0) != 0;
+        mAppExecutors.diskIO().execute(() -> {
+            Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon()
+                    .appendPath(String.valueOf(movie.getId()))
+                    .build();
+            mContext.getContentResolver().delete(uri, null, null);
+        });
     }
 }

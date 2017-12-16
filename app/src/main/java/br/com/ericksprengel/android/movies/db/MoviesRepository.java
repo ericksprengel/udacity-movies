@@ -18,13 +18,10 @@ package br.com.ericksprengel.android.movies.db;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +29,8 @@ import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
 import br.com.ericksprengel.android.movies.db.local.MoviesLocalDataSource;
 import br.com.ericksprengel.android.movies.db.remote.MoviesRemoteDataSource;
 import br.com.ericksprengel.android.movies.models.Movie;
+import br.com.ericksprengel.android.movies.models.MovieReview;
+import br.com.ericksprengel.android.movies.models.MovieVideo;
 import br.com.ericksprengel.android.movies.util.AppExecutors;
 
 import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_FAVORITE;
@@ -54,13 +53,9 @@ public class MoviesRepository implements MoviesDataSource {
 
     private final MoviesDataSource mMoviesLocalDataSource;
 
-    Map<String, List<Movie>> mCachedMovieLists = new HashMap<>();
-
-    /**
-     * Marks the cache as invalid, to force an update the next time data is requested. This variable
-     * has package local visibility so it can be accessed from tests.
-     */
-    boolean mCacheIsDirty = false;
+    private Map<String, List<Movie>> mCachedMovieLists = new HashMap<>();
+    private SparseArray<List<MovieVideo>> mCachedMovieVideoLists = new SparseArray<>();
+    private SparseArray<List<MovieReview>> mCachedMovieReviewLists = new SparseArray<>();
 
 
     private MoviesRepository(@NonNull MoviesDataSource moviesRemoteDataSource,
@@ -81,13 +76,13 @@ public class MoviesRepository implements MoviesDataSource {
     }
 
     @Override
-    public void getMovies(@NonNull LoadMoviesCallback callback, String listType) {
+    public boolean getMovies(@NonNull LoadMoviesCallback callback, String listType) {
         checkNotNull(callback);
 
         // Respond immediately with cache if available
         if (mCachedMovieLists.containsKey(listType)) {
             callback.onMoviesLoaded(getMoviesFromCachedDataSource(listType), listType);
-            return;
+            return true;
         }
 
         // fetch from remote storage for popular and top_rated
@@ -99,55 +94,105 @@ public class MoviesRepository implements MoviesDataSource {
                 break;
             case MOVIE_LIST_TYPE_FAVORITE:
                 // Query the local storage if available. If not, query the network.
-                mMoviesLocalDataSource.getMovies(new LoadMoviesCallback() {
-                    @Override
-                    public void onMoviesLoaded(List<Movie> movies, String listType) {
-                        refreshCache(movies, listType);
-                        callback.onMoviesLoaded(getMoviesFromCachedDataSource(listType), listType);
-                    }
-
-                    @Override
-                    public void onDataNotAvailable(int errorCode, String errorMessage) {
-                        callback.onDataNotAvailable(errorCode, errorMessage);
-                    }
-                }, listType);
+                getMoviesFromLocalDataSource(callback, listType);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid list type");
         }
+        return false;
     }
 
     @Override
-    public void getReviews(@NonNull LoadReviewsCallback callback) {
+    public boolean getVideos(@NonNull LoadVideosCallback callback, Movie movie) {
+        checkNotNull(callback);
+        checkNotNull(movie);
 
+        // Respond immediately with cache if available
+        List<MovieVideo> videos = mCachedMovieVideoLists.get(movie.getId());
+        if (videos != null) {
+            callback.onVideosLoaded(new ArrayList<>(videos));
+            return true;
+        }
+
+        // fetch from remote storage
+        getVideosFromRemoteDataSource(callback, movie);
+        return false;
+    }
+
+    @Override
+    public boolean getReviews(@NonNull LoadReviewsCallback callback, Movie movie) {
+        checkNotNull(callback);
+        checkNotNull(movie);
+
+        // Respond immediately with cache if available
+        List<MovieReview> reviews = mCachedMovieReviewLists.get(movie.getId());
+        if (reviews != null) {
+            callback.onReviewsLoaded(new ArrayList<>(reviews));
+            return true;
+        }
+
+        // fetch from remote storage
+        getReviewsFromRemoteDataSource(callback, movie);
+        return false;
     }
 
     @Override
     public void favoriteMovie(@NonNull Movie movie) {
-
+        if(mCachedMovieLists.containsKey(MOVIE_LIST_TYPE_FAVORITE)) {
+            List<Movie> movies = mCachedMovieLists.get(MOVIE_LIST_TYPE_FAVORITE);
+            Integer id = movie.getId();
+            boolean isAlreadyCached = movies.stream()
+                    .map(Movie::getId)
+                    .anyMatch(id::equals);
+            if(!isAlreadyCached) {
+                movies.add(movie);
+            }
+        }
+        mMoviesLocalDataSource.favoriteMovie(movie);
     }
 
     @Override
     public void unfavoriteMovie(@NonNull Movie movie) {
-
+        if(mCachedMovieLists.containsKey(MOVIE_LIST_TYPE_FAVORITE)) {
+            List<Movie> movies = mCachedMovieLists.get(MOVIE_LIST_TYPE_FAVORITE);
+            for(Movie m : movies) {
+                if(m.getId() == movie.getId()) {
+                    movies.remove(m);
+                    break;
+                }
+            }
+        }
+        mMoviesLocalDataSource.unfavoriteMovie(movie);
     }
 
-    @Override
-    public void refreshMovies() {
-
-    }
 
 
+    // getMovies aux
 
     private List<Movie> getMoviesFromCachedDataSource(String listType) {
         return new ArrayList<>(mCachedMovieLists.get(listType));
+    }
+
+    public void getMoviesFromLocalDataSource(@NonNull final LoadMoviesCallback callback, String listType) {
+        mMoviesLocalDataSource.getMovies(new LoadMoviesCallback() {
+            @Override
+            public void onMoviesLoaded(List<Movie> movies, String listType) {
+                refreshMoviesCache(movies, listType);
+                callback.onMoviesLoaded(getMoviesFromCachedDataSource(listType), listType);
+            }
+
+            @Override
+            public void onDataNotAvailable(int errorCode, String errorMessage) {
+                callback.onDataNotAvailable(errorCode, errorMessage);
+            }
+        }, listType);
     }
 
     private void getMoviesFromRemoteDataSource(@NonNull final LoadMoviesCallback callback, String listType) {
         mMoviesRemoteDataSource.getMovies(new LoadMoviesCallback() {
             @Override
             public void onMoviesLoaded(List<Movie> movies, String listType) {
-                refreshCache(movies, listType);
+                refreshMoviesCache(movies, listType);
                 refreshLocalDataSource(movies);
                 callback.onMoviesLoaded(getMoviesFromCachedDataSource(listType), listType);
             }
@@ -159,11 +204,65 @@ public class MoviesRepository implements MoviesDataSource {
         }, listType);
     }
 
-    private void refreshCache(List<Movie> movies, String listType) {
+    private void refreshMoviesCache(List<Movie> movies, String listType) {
         mCachedMovieLists.put(listType, movies);
     }
 
     private void refreshLocalDataSource(List<Movie> movies) {
         //TODO: update favorite movies information
+    }
+
+
+
+    // getVideos aux
+
+    private List<MovieVideo> getVideosFromCachedDataSource(Movie movie) {
+        return new ArrayList<>(mCachedMovieVideoLists.get(movie.getId()));
+    }
+
+    private void getVideosFromRemoteDataSource(@NonNull final LoadVideosCallback callback, Movie movie) {
+        mMoviesRemoteDataSource.getVideos(new LoadVideosCallback() {
+            @Override
+            public void onVideosLoaded(List<MovieVideo> videos) {
+                refreshVideosCache(videos, movie);
+                callback.onVideosLoaded(getVideosFromCachedDataSource(movie));
+            }
+
+            @Override
+            public void onDataNotAvailable(int errorCode, String errorMessage) {
+                callback.onDataNotAvailable(errorCode, errorMessage);
+            }
+        }, movie);
+    }
+
+    private void refreshVideosCache(List<MovieVideo> videos, Movie movie) {
+        mCachedMovieVideoLists.put(movie.getId(), videos);
+    }
+
+
+
+    // getReviews aux
+
+    private List<MovieReview> getReviewsFromCachedDataSource(Movie movie) {
+        return new ArrayList<>(mCachedMovieReviewLists.get(movie.getId()));
+    }
+
+    private void getReviewsFromRemoteDataSource(@NonNull final LoadReviewsCallback callback, Movie movie) {
+        mMoviesRemoteDataSource.getReviews(new LoadReviewsCallback() {
+            @Override
+            public void onReviewsLoaded(List<MovieReview> reviews) {
+                refreshReviewsCache(reviews, movie);
+                callback.onReviewsLoaded(getReviewsFromCachedDataSource(movie));
+            }
+
+            @Override
+            public void onDataNotAvailable(int errorCode, String errorMessage) {
+                callback.onDataNotAvailable(errorCode, errorMessage);
+            }
+        }, movie);
+    }
+
+    private void refreshReviewsCache(List<MovieReview> reviews, Movie movie) {
+        mCachedMovieReviewLists.put(movie.getId(), reviews);
     }
 }

@@ -49,12 +49,12 @@ public interface MoviesDataSource {
         void onDataNotAvailable(int errorCode, String errorMessage);
     }
 
-    void getMovies(@NonNull LoadMoviesCallback callback, String listType);
-    void getReviews(@NonNull LoadReviewsCallback callback);
+    boolean getMovies(@NonNull LoadMoviesCallback callback, String listType);
+    boolean getVideos(@NonNull LoadVideosCallback callback, Movie movie);
+    boolean getReviews(@NonNull LoadReviewsCallback callback, Movie movie);
 
     void favoriteMovie(@NonNull Movie movie);
 
     void unfavoriteMovie(@NonNull Movie movie);
 
-    void refreshMovies();
 }
