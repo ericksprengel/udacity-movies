@@ -61,6 +61,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
                     if(movieListResponse == null) {
                         callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
                                 mContext.getResources().getString(R.string.movie_list_ac_api_request_error));
+                        return;
                     }
                     List<Movie> movies = movieListResponse.getResults();
                     callback.onMoviesLoaded(movies, listType);
@@ -93,6 +94,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
                     if(videoListResponse == null) {
                         callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
                                 mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                        return;
                     }
                     List<MovieVideo> videos = videoListResponse.getResults();
                     callback.onVideosLoaded(videos);
@@ -125,6 +127,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
                     if(reviewListResponse == null) {
                         callback.onDataNotAvailable(ERROR_CODE_DEFAULT,
                                 mContext.getResources().getString(R.string.movie_details_ac_api_request_error));
+                        return;
                     }
                     List<MovieReview> reviews = reviewListResponse.getResults();
                     callback.onReviewsLoaded(reviews);

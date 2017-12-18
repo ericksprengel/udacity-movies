@@ -13,10 +13,6 @@ import java.util.List;
 import br.com.ericksprengel.android.movies.BuildConfig;
 import br.com.ericksprengel.android.movies.models.Movie;
 
-/**
- * Created by erick on 14/12/17.
- */
-
 public class MovieContract {
 
     private static final int TYPE_BOOLEAN_FALSE = 0;

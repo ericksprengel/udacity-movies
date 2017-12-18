@@ -20,7 +20,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.util.AppExecutors;
 
 import static br.com.ericksprengel.android.movies.api.TheMovieDbServices.MOVIE_LIST_TYPE_FAVORITE;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 
 /**
@@ -65,7 +63,7 @@ public class MoviesLocalDataSource implements MoviesDataSource {
             throw new UnsupportedOperationException("Only favorite movies can be fetched from local data source.");
         }
 
-        Runnable runnable = (Runnable) () -> {
+        Runnable runnable = () -> {
 
             Cursor cursor = mContext.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
                     null, MovieContract.MovieEntry.COLUMN_FAVORITE + "=?", new String[]{"1"}, null);
@@ -76,9 +74,7 @@ public class MoviesLocalDataSource implements MoviesDataSource {
                 cursor.moveToNext();
             }
 
-            mAppExecutors.mainThread().execute(() -> {
-                 callback.onMoviesLoaded(movies, listType);
-            });
+            mAppExecutors.mainThread().execute(() -> callback.onMoviesLoaded(movies, listType));
         };
 
         mAppExecutors.diskIO().execute(runnable);
@@ -97,10 +93,8 @@ public class MoviesLocalDataSource implements MoviesDataSource {
 
     @Override
     public void favoriteMovie(@NonNull Movie movie) {
-        mAppExecutors.diskIO().execute(() -> {
-            mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
-                    MovieContract.MovieEntry.getContentValues(movie));
-        });
+        mAppExecutors.diskIO().execute(() -> mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MovieEntry.getContentValues(movie)));
     }
 
     @Override

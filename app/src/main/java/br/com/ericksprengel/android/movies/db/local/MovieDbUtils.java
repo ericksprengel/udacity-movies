@@ -2,10 +2,6 @@ package br.com.ericksprengel.android.movies.db.local;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import br.com.ericksprengel.android.movies.models.Movie;
 
@@ -23,6 +19,8 @@ public class MovieDbUtils {
                 null);
 
         cursor.moveToFirst();
-        return cursor.getInt(0) != 0;
+        boolean isFavorite = cursor.getInt(0) != 0;
+        cursor.close();
+        return isFavorite;
     }
 }

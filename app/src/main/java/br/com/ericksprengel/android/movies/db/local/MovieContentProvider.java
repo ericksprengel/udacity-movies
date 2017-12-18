@@ -91,7 +91,7 @@ public class MovieContentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
 
-        int moviesDeleted = 0;
+        int moviesDeleted;
 
         switch (sUriMatcher.match(uri)) {
             case MOVIE_WITH_ID:

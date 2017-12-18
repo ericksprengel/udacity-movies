@@ -25,4 +25,5 @@
     <string name="movie_details_ac_reviews_section">"Reviews"</string>
     <string name="movie_details_ac_api_request_error">"Movie content couldn't be loaded."</string>
     <string name="movie_details_ac_loading_movie_content">"Loading movie info…"</string>
+    <string name="movie_details_ac_poster_cdesc">Movie poster</string>
 </resources>

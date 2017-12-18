@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 /**
  * Executor that runs a task on a new background thread.
  */
-public class DiskIOThreadExecutor implements Executor {
+class DiskIOThreadExecutor implements Executor {
 
     private final Executor mDiskIO;
 

@@ -195,12 +195,10 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
 
 
 
-    MovieDetailsAdapter(Movie movie, List<MovieVideo> videos, List<MovieReview> reviews,
+    MovieDetailsAdapter(Movie movie,
                         OnMovieFavoriteClickListener favoriteClickListener,
                         OnMovieVideoClickListener movieVideoClickListener) {
         this.mMovie = movie;
-        this.mMovieVideos = videos;
-        this.mMovieReviews = reviews;
         this.mOnMovieFavoriteClickListener = favoriteClickListener;
         this.mOnClickMovieVideoListener = movieVideoClickListener;
     }

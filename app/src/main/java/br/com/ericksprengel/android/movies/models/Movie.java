@@ -1,6 +1,5 @@
 package br.com.ericksprengel.android.movies.models;
 
-import android.content.Context;
 import android.content.res.Resources;
 
 import com.google.gson.annotations.SerializedName;

@@ -8,25 +8,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import org.parceler.Parcels;
 
 import java.util.List;
 
-import br.com.ericksprengel.android.movies.api.TheMovieDbApiError;
-import br.com.ericksprengel.android.movies.api.TheMovieDbServicesBuilder;
 import br.com.ericksprengel.android.movies.db.MoviesDataSource;
 import br.com.ericksprengel.android.movies.db.MoviesRepository;
 import br.com.ericksprengel.android.movies.db.local.MovieDbUtils;
 import br.com.ericksprengel.android.movies.models.Movie;
 import br.com.ericksprengel.android.movies.models.MovieReview;
-import br.com.ericksprengel.android.movies.models.MovieReviewListResponse;
 import br.com.ericksprengel.android.movies.models.MovieVideo;
-import br.com.ericksprengel.android.movies.models.MovieVideoListResponse;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MovieDetailsActivity extends BaseActivity implements View.OnClickListener,
         MovieDetailsAdapter.OnMovieVideoClickListener, MovieDetailsAdapter.OnMovieFavoriteClickListener, MoviesDataSource.LoadVideosCallback, MoviesDataSource.LoadReviewsCallback {
@@ -68,7 +60,7 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new MovieDetailsAdapter(mMovie, null,null, this, this);
+        mAdapter = new MovieDetailsAdapter(mMovie, this, this);
         mRecyclerView.setAdapter(mAdapter);
 
         loadVideos();
@@ -134,7 +126,7 @@ public class MovieDetailsActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.layout_error_button:
-                Toast.makeText(this, "Error button.\nNot implemented.", Toast.LENGTH_LONG).show();
+                loadVideos();
                 break;
             default:
                 Log.wtf(LOG_TAG, "Click event without treatment. (view id: " +view.getId()+ ")");

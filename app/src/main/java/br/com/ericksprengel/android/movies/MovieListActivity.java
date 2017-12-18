@@ -46,7 +46,7 @@ public class MovieListActivity extends BaseActivity implements View.OnClickListe
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this,
                 getResources().getInteger(R.integer.movie_list_ac_grid_spancount));
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new MovieListAdapter(null, this);
+        mAdapter = new MovieListAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
 
         FabSpeedDial fab = findViewById(R.id.movie_list_ac_fab);
