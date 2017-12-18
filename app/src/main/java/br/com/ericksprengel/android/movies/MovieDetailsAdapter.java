@@ -108,7 +108,6 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         }
     }
 
-    //TODO add more fields
     public class MovieVideoViewHolder extends MovieDetailsAdapter.ViewHolder implements View.OnClickListener {
         MovieVideo mMovieVideo;
 
@@ -139,21 +138,23 @@ public class MovieDetailsAdapter extends RecyclerView.Adapter<MovieDetailsAdapte
         }
     }
 
-    //TODO add more fields
     public class MovieReviewViewHolder extends MovieDetailsAdapter.ViewHolder {
         MovieReview mMovieReview;
 
         private final TextView mAuthor;
+        private final TextView mContent;
 
         MovieReviewViewHolder(View v) {
             super(v);
             mAuthor = v.findViewById(R.id.movie_details_ac_review_item_author_textview);
+            mContent = v.findViewById(R.id.movie_details_ac_review_item_content_textview);
         }
 
         void updateData(MovieReview review) {
             mMovieReview = review;
 
             mAuthor.setText(mMovieReview.getAuthor());
+            mContent.setText(mMovieReview.getContent());
         }
     }
 
